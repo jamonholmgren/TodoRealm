@@ -1,4 +1,4 @@
-import React, {type PropsWithChildren} from 'react';
+import React, {useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -11,19 +11,33 @@ import {
 
 import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
 
-import {todoContext} from './app/realm';
-import {AppProvider, UserProvider} from '@realm/react';
+import {AppProvider, UserProvider, useUser} from '@realm/react';
 import {TodoList} from './app/TodoList';
 import secrets from './app/secrets';
 import {LoginScreen} from './app/LoginScreen';
-const {RealmProvider} = todoContext;
+
+import {todoContext} from './app/realm';
+const {RealmProvider, useRealm} = todoContext;
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const user = useUser()!;
+  const realm = useRealm();
+
+  useEffect(() => {
+    realm.subscriptions.update(subs => {
+      subs.add(realm.objects('Todo').filtered('_real_owner_id = $0', user.id), {
+        name: 'TodoSubscription',
+      });
+    });
+
+    return () => {
+      realm.subscriptions.update(subs => {
+        subs.removeByName('TodoSubscription');
+      });
+    };
+  }, [realm, user]);
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -37,7 +51,7 @@ const AppWrapper = () => {
   return (
     <AppProvider id={secrets.atlasAppId}>
       <UserProvider fallback={<LoginScreen />}>
-        <RealmProvider>
+        <RealmProvider sync={{flexible: true}}>
           <App />
         </RealmProvider>
       </UserProvider>

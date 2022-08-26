@@ -1,3 +1,4 @@
+import {useUser} from '@realm/react';
 import React, {useCallback} from 'react';
 import {FlatList, Pressable, Text, TextInput, View} from 'react-native';
 
@@ -7,8 +8,8 @@ const {useQuery, useRealm} = todoContext;
 
 export const TodoList = () => {
   const todos = useQuery(Todo);
-  console.log(todos);
   const realm = useRealm();
+  const user = useUser()!;
 
   const [newTodoText, setNewTodoText] = React.useState('');
 
@@ -17,6 +18,8 @@ export const TodoList = () => {
       realm.write(() => {
         realm.create('Todo', {
           _id: new Realm.BSON.ObjectId(),
+          _owner_id: new Realm.BSON.ObjectId(),
+          _real_owner_id: user.id,
           description: newText,
           completed: false,
           createdAt: new Date(),
