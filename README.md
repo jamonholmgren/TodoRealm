@@ -2,7 +2,7 @@
 
 I did a stream with Andrew Meyer from the Realm team (Mongo DB) on August 26, 2022, and we built a todo app on Realm React Native.
 
-Stream link: TODO
+Stream link: [https://www.youtube.com/watch?v=vvZ5OMdEFqA](https://www.youtube.com/watch?v=vvZ5OMdEFqA)
 
 To get this running, you'll need an ./app/secrets.ts file, and have the following shape:
 
